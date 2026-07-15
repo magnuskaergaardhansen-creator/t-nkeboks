@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<title>Tænkeboks</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+min-height:100vh;
+padding:20px;
+display:flex;
+justify-content:center;
+}
+
+.container{
+width:100%;
+max-width:450px;
+}
+
+.card{
+background:#1e293b;
+border-radius:24px;
+padding:20px;
+margin-bottom:16px;
+box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+
+h1{
+font-size:42px;
+font-weight:800;
+text-align:center;
+margin-bottom:10px;
+}
+
+.subtitle{
+text-align:center;
+color:#94a3b8;
+margin-bottom:20px;
+}
+
+label{
+display:block;
+margin-bottom:8px;
+font-size:14px;
+color:#cbd5e1;
+}
+
+input[type=range]{
+width:100%;
+}
+
+.diceCount{
+font-size:42px;
+font-weight:800;
+text-align:center;
+margin-top:10px;
+}
+
+button{
+width:100%;
+border:none;
+padding:18px;
+font-size:18px;
+font-weight:700;
+border-radius:18px;
+cursor:pointer;
+transition:.2s;
+}
+
+button:active{
+transform:scale(.98);
+}
+
+.rollBtn{
+background:#6366f1;
+color:white;
+}
+
+.diceArea{
+min-height:220px;
+border-radius:20px;
+border:2px dashed #334155;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:20px;
+background:#0f172a;
+user-select:none;
+-webkit-user-select:none;
+}
+
+.hiddenMessage{
+color:#94a3b8;
+}
+
+.diceGrid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
+width:100%;
+}
+
+.die{
+aspect-ratio:1;
+background:white;
+border-radius:16px;
+position:relative;
+animation:pop .25s ease;
+}
+
+.dot{
+width:12px;
+height:12px;
+border-radius:50%;
+background:#111827;
+position:absolute;
+}
+
+@keyframes pop{
+from{
+transform:scale(.6) rotate(-10deg);
+opacity:0;
+}
+to{
+transform:scale(1);
+opacity:1;
+}
+}
+
+.footer{
+text-align:center;
+font-size:12px;
+color:#64748b;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎲 Tænkeboks</h1>
+
+<div class="subtitle">
+Slå dine terninger og hold fingeren nede for at se dem
+</div>
+
+<div class="card">
+
+<label>Antal terninger</label>
+
+<input
+id="diceCount"
+type="range"
+min="1"
+max="12"
+value="5"
+/>
+
+<div id="diceCountLabel" class="diceCount">5</div>
+
+</div>
+
+<div class="card">
+
+<button id="rollBtn" class="rollBtn">
+Slå terninger
+</button>
+
+</div>
+
+<div class="card">
+
+<div
+id="diceReveal"
+class="diceArea"
+>
+
+<div class="hiddenMessage">
+Hold fingeren nede her for at se dine terninger
+</div>
+
+</div>
+
+</div>
+
+<div class="footer">
+Terninger skjules automatisk når du slipper skærmen
+</div>
+
+</div>
+
+<script>
+
+const diceCountElement =
+document.getElementById("diceCount");
+
+const diceCountLabel =
+document.getElementById("diceCountLabel");
+
+const rollBtn =
+document.getElementById("rollBtn");
+
+const revealArea =
+document.getElementById("diceReveal");
+
+let currentDice = [];
+
+diceCountElement.value =
+localStorage.getItem("diceCount") || 5;
+
+diceCountLabel.textContent =
+diceCountElement.value;
+
+diceCountElement.addEventListener("input",()=>{
+
+diceCountLabel.textContent =
+diceCountElement.value;
+
+localStorage.setItem(
+"diceCount",
+diceCountElement.value
+);
+
+});
+
+function rollDice(amount){
+
+const values=[];
+
+for(let i=0;i<amount;i++){
+
+const array = new Uint32Array(1);
+
+crypto.getRandomValues(array);
+
+values.push(
+(array[0] % 6) + 1
+);
+}
+
+return values;
+}
+
+rollBtn.addEventListener("click",()=>{
+
+const count =
+Number(diceCountElement.value);
+
+rollBtn.textContent =
+"Ruller...";
+
+setTimeout(()=>{
+
+currentDice =
+rollDice(count);
+
+rollBtn.textContent =
+"Slå terninger";
+
+navigator.vibrate?.(100);
+
+},400);
+
+});
+
+function dot(x,y){
+
+const d =
+document.createElement("div");
+
+d.className="dot";
+d.style.left=x;
+d.style.top=y;
+
+return d;
+}
+
+function createDie(value){
+
+const die =
+document.createElement("div");
+
+die.className="die";
+
+const positions = {
+
+1:[
+["50%","50%"]
+],
+
+2:[
+["20%","20%"],
+["80%","80%"]
+],
+
+3:[
+["20%","20%"],
+["50%","50%"],
+["80%","80%"]
+],
+
+4:[
+["20%","20%"],
+["80%","20%"],
+["20%","80%"],
+["80%","80%"]
+],
+
+5:[
+["20%","20%"],
+["80%","20%"],
+["50%","50%"],
+["20%","80%"],
+["80%","80%"]
+],
+
+6:[
+["20%","20%"],
+["80%","20%"],
+["20%","50%"],
+["80%","50%"],
+["20%","80%"],
+["80%","80%"]
+]
+
+};
+
+positions[value].forEach(p=>{
+
+const d = dot(p[0],p[1]);
+
+d.style.transform =
+"translate(-50%,-50%)";
+
+die.appendChild(d);
+
+});
+
+return die;
+}
+
+function showDice(){
+
+if(!currentDice.length){
+
+revealArea.innerHTML=
+`
+<div class="hiddenMessage">
+Slå terninger først
+</div>
+`;
+
+return;
+}
+
+revealArea.innerHTML="";
+
+const grid =
+document.createElement("div");
+
+grid.className="diceGrid";
+
+currentDice.forEach(v=>{
+
+grid.appendChild(
+createDie(v)
+);
+
+});
+
+revealArea.appendChild(grid);
+
+}
+
+function hideDice(){
+
+revealArea.innerHTML=
+`
+<div class="hiddenMessage">
+Hold fingeren nede her for at se dine terninger
+</div>
+`;
+}
+
+revealArea.addEventListener(
+"touchstart",
+showDice
+);
+
+revealArea.addEventListener(
+"touchend",
+hideDice
+);
+
+revealArea.addEventListener(
+"touchcancel",
+hideDice
+);
+
+revealArea.addEventListener(
+"mousedown",
+showDice
+);
+
+revealArea.addEventListener(
+"mouseup",
+hideDice
+);
+
+revealArea.addEventListener(
+"mouseleave",
+hideDice
+);
+
+</script>
+
+</body>
+</html>
