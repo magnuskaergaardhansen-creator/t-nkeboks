@@ -331,11 +331,14 @@ Terninger skjules automatisk når du slipper skærmen
 
 <script>
 
-const diceCountElement =
-document.getElementById("diceCount");
-
 const diceCountLabel =
 document.getElementById("diceCountLabel");
+
+const plusBtn =
+document.getElementById("plusBtn");
+
+const minusBtn =
+document.getElementById("minusBtn");
 
 const rollBtn =
 document.getElementById("rollBtn");
@@ -345,23 +348,48 @@ document.getElementById("diceReveal");
 
 let currentDice = [];
 
-diceCountElement.value =
-localStorage.getItem("diceCount") || 5;
+let diceCount =
+Number(
+localStorage.getItem("diceCount") || 5
+);
+
+function updateDisplay(){
 
 diceCountLabel.textContent =
-diceCountElement.value;
-
-diceCountElement.addEventListener("input",()=>{
-
-diceCountLabel.textContent =
-diceCountElement.value;
+diceCount;
 
 localStorage.setItem(
 "diceCount",
-diceCountElement.value
+diceCount
 );
 
+}
+
+plusBtn.addEventListener("click",()=>{
+
+if(diceCount < 12){
+
+diceCount++;
+
+updateDisplay();
+
+}
+
 });
+
+minusBtn.addEventListener("click",()=>{
+
+if(diceCount > 1){
+
+diceCount--;
+
+updateDisplay();
+
+}
+
+});
+
+updateDisplay();
 
 function rollDice(amount){
 
@@ -369,37 +397,60 @@ const values=[];
 
 for(let i=0;i<amount;i++){
 
-const array = new Uint32Array(1);
+const array =
+new Uint32Array(1);
 
 crypto.getRandomValues(array);
 
 values.push(
 (array[0] % 6) + 1
 );
+
 }
 
 return values;
+
 }
 
 rollBtn.addEventListener("click",()=>{
 
-const count =
-Number(diceCountElement.value);
+const cup =
+document.getElementById("diceCup");
+
+if(cup){
+
+cup.classList.remove("pulse");
+
+void cup.offsetWidth;
+
+cup.classList.add("shake");
+
+}
+
+rollBtn.disabled = true;
 
 rollBtn.textContent =
-"Ruller...";
+"🎲 Ryster bæger...";
 
 setTimeout(()=>{
 
 currentDice =
-rollDice(count);
+rollDice(diceCount);
+
+navigator.vibrate?.([
+50,
+50,
+100
+]);
+
+rollBtn.disabled = false;
 
 rollBtn.textContent =
 "Slå terninger";
 
-navigator.vibrate?.(100);
+hideDice();
 
-},400);
+},850);
 
 });
 
@@ -409,10 +460,12 @@ const d =
 document.createElement("div");
 
 d.className="dot";
+
 d.style.left=x;
 d.style.top=y;
 
 return d;
+
 }
 
 function createDie(value){
@@ -477,6 +530,7 @@ die.appendChild(d);
 });
 
 return die;
+
 }
 
 function showDice(){
@@ -491,6 +545,7 @@ Slå terninger først
 `;
 
 return;
+
 }
 
 revealArea.innerHTML="";
@@ -566,6 +621,8 @@ revealArea.addEventListener(
 "mouseleave",
 hideDice
 );
+
+hideDice();
 
 </script>
 
