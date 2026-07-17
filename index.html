@@ -6,6 +6,130 @@
 
 <title>Tænkeboks</title>
 
+.counter{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:20px;
+margin-top:20px;
+}
+
+.counter button{
+
+width:60px;
+height:60px;
+border-radius:50%;
+
+font-size:32px;
+font-weight:800;
+
+background:#4f46e5;
+
+color:white;
+
+border:none;
+
+}
+
+.cup {
+height:260px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+gap:14px;
+}
+
+.cupIcon {
+
+width:120px;
+height:140px;
+
+background:
+linear-gradient(
+180deg,
+#8b5cf6,
+#4f46e5
+);
+
+border-radius:
+25px 25px 45px 45px;
+
+box-shadow:
+0 20px 40px rgba(0,0,0,.35),
+inset 0 3px 6px rgba(255,255,255,.25);
+
+position:relative;
+
+}
+
+.cupIcon:before{
+
+content:"";
+
+position:absolute;
+
+left:10px;
+right:10px;
+top:10px;
+
+height:25px;
+
+border-radius:15px;
+
+background:rgba(255,255,255,.15);
+
+}
+
+.cupTitle{
+font-size:24px;
+font-weight:800;
+color:white;
+}
+
+.cupText{
+color:#94a3b8;
+text-align:center;
+max-width:220px;
+line-height:1.4;
+}
+
+.pulse{
+animation:pulse 2s infinite;
+}
+
+.shake{
+animation:shake .8s ease;
+}
+
+@keyframes pulse{
+
+0%{
+transform:scale(1);
+}
+
+50%{
+transform:scale(1.08);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
+
+@keyframes shake {
+
+0% { transform:rotate(0deg); }
+15% { transform:rotate(-8deg); }
+30% { transform:rotate(8deg); }
+45% { transform:rotate(-8deg); }
+60% { transform:rotate(8deg); }
+75% { transform:rotate(-5deg); }
+100% { transform:rotate(0deg); }
+
+}
+
 <style>
 *{
 margin:0;
@@ -162,15 +286,15 @@ Slå dine terninger og hold fingeren nede for at se dem
 
 <label>Antal terninger</label>
 
-<input
-id="diceCount"
-type="range"
-min="1"
-max="12"
-value="5"
-/>
+<div class="counter">
 
-<div id="diceCountLabel" class="diceCount">5</div>
+<button id="minusBtn">−</button>
+
+<div id="diceCountLabel" class="diceCount">
+5
+</div>
+
+<button id="plusBtn">+</button>
 
 </div>
 
@@ -388,12 +512,27 @@ revealArea.appendChild(grid);
 
 function hideDice(){
 
-revealArea.innerHTML=
-`
-<div class="hiddenMessage">
-Hold fingeren nede her for at se dine terninger
+revealArea.innerHTML = `
+
+<div class="cup">
+
+<div
+id="diceCup"
+class="cupIcon pulse">
 </div>
+
+<div class="cupTitle">
+Terningebæger
+</div>
+
+<div class="cupText">
+Hold fingeren nede for at kigge på dine terninger
+</div>
+
+</div>
+
 `;
+
 }
 
 revealArea.addEventListener(
